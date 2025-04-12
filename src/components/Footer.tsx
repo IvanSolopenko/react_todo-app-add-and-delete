@@ -9,26 +9,23 @@ type Props = {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 };
 
-const filters = [
-  {
-    label: 'All',
-    value: FilterType.all,
-    href: '#/',
-    dataCy: 'FilterLinkAll',
-  },
-  {
-    label: 'Active',
-    value: FilterType.active,
-    href: '#/active',
-    dataCy: 'FilterLinkActive',
-  },
-  {
-    label: 'Completed',
-    value: FilterType.completed,
-    href: '#/completed',
-    dataCy: 'FilterLinkCompleted',
-  },
-];
+const filterLabels: Record<FilterType, string> = {
+  [FilterType.all]: 'All',
+  [FilterType.active]: 'Active',
+  [FilterType.completed]: 'Completed',
+};
+
+const hrefMap: Record<FilterType, string> = {
+  [FilterType.all]: '#/',
+  [FilterType.active]: '#/active',
+  [FilterType.completed]: '#/completed',
+};
+
+const dataCyMap: Record<FilterType, string> = {
+  [FilterType.all]: 'FilterLinkAll',
+  [FilterType.active]: 'FilterLinkActive',
+  [FilterType.completed]: 'FilterLinkCompleted',
+};
 
 export const Footer: React.FC<Props> = ({
   todos,
@@ -48,17 +45,17 @@ export const Footer: React.FC<Props> = ({
 
       {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        {filters.map(({ label, value, href, dataCy }) => (
+        {Object.values(FilterType).map(value => (
           <a
             key={value}
-            href={href}
+            href={hrefMap[value]}
             className={classNames('filter__link', {
               selected: filter === value,
             })}
-            data-cy={dataCy}
+            data-cy={dataCyMap[value]}
             onClick={() => setFilter(value)}
           >
-            {label}
+            {filterLabels[value]}
           </a>
         ))}
       </nav>

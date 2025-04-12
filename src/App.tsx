@@ -10,10 +10,10 @@ import {
   USER_ID,
 } from './api/todos';
 import { Todo } from './types/Todo';
-import classNames from 'classnames';
 import { TodoList } from './components/TodoList';
 import { Footer } from './components/Footer';
 import { FilterType } from './types/FilterType';
+import { Header } from './components/Header';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -223,6 +223,20 @@ export const App: React.FC = () => {
     );
   };
 
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!todoTitle.trim()) {
+      setTitleErrorMessage('Title should not be empty');
+      titleField.current?.focus();
+
+      return;
+    }
+
+    addTodo({ title: todoTitle.trim(), completed: false });
+    setTitleErrorMessage('');
+  };
+
   const visibleTodos = todos.filter(todo => {
     if (filter === FilterType.active) {
       return !todo.completed;
@@ -235,52 +249,28 @@ export const App: React.FC = () => {
     return true;
   });
 
+  const setErrors = () => {
+    setTitleErrorMessage('');
+    setAddErrorMessage('');
+    setDeleteErrorMessage('');
+    setUpdateErrorMessage('');
+    setLoadingErrorMessage('');
+  };
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
-        <header className="todoapp__header">
-          {/* this button should have `active` class only if all todos are completed */}
-          {todos.length > 0 && (
-            <button
-              type="button"
-              className={classNames('todoapp__toggle-all', {
-                active: todos.every(todo => todo.completed),
-              })}
-              data-cy="ToggleAllButton"
-              onClick={handleAllCompleted}
-            />
-          )}
-
-          {/* Add a todo on form submit */}
-          <form
-            onSubmit={event => {
-              event.preventDefault();
-
-              if (!todoTitle.trim()) {
-                setTitleErrorMessage('Title should not be empty');
-                titleField.current?.focus();
-
-                return;
-              }
-
-              addTodo({ title: todoTitle.trim(), completed: false });
-              setTitleErrorMessage('');
-            }}
-          >
-            <input
-              ref={titleField}
-              data-cy="NewTodoField"
-              type="text"
-              className="todoapp__new-todo"
-              placeholder="What needs to be done?"
-              value={todoTitle}
-              onChange={handleTitleChange}
-              disabled={isAdding}
-            />
-          </form>
-        </header>
+        <Header
+          todos={todos}
+          titleField={titleField}
+          todoTitle={todoTitle}
+          handleTitleChange={handleTitleChange}
+          handleAllCompleted={handleAllCompleted}
+          isAdding={isAdding}
+          onSubmit={onSubmit}
+        />
 
         <TodoList
           todos={visibleTodos}
@@ -317,13 +307,7 @@ export const App: React.FC = () => {
           data-cy="HideErrorButton"
           type="button"
           className="delete"
-          onClick={() => {
-            setTitleErrorMessage('');
-            setAddErrorMessage('');
-            setDeleteErrorMessage('');
-            setUpdateErrorMessage('');
-            setLoadingErrorMessage('');
-          }}
+          onClick={setErrors}
         />
         {titleErrorMessage ||
           addErrorMessage ||
@@ -331,25 +315,6 @@ export const App: React.FC = () => {
           updateErrorMessage ||
           loadingErrorMessage}
       </div>
-
-      {false && (
-        <div
-          data-cy="ErrorNotification"
-          className="notification is-danger is-light has-text-weight-normal"
-        >
-          <button data-cy="HideErrorButton" type="button" className="delete" />
-          {/* show only one message at a time */}
-          Unable to load todos
-          <br />
-          Title should not be empty
-          <br />
-          Unable to add a todo
-          <br />
-          Unable to delete a todo
-          <br />
-          Unable to update a todo
-        </div>
-      )}
     </div>
   );
 };
