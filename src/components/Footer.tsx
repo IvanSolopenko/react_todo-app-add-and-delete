@@ -9,24 +9,6 @@ type Props = {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 };
 
-const filterLabels: Record<FilterType, string> = {
-  [FilterType.all]: 'All',
-  [FilterType.active]: 'Active',
-  [FilterType.completed]: 'Completed',
-};
-
-const hrefMap: Record<FilterType, string> = {
-  [FilterType.all]: '#/',
-  [FilterType.active]: '#/active',
-  [FilterType.completed]: '#/completed',
-};
-
-const dataCyMap: Record<FilterType, string> = {
-  [FilterType.all]: 'FilterLinkAll',
-  [FilterType.active]: 'FilterLinkActive',
-  [FilterType.completed]: 'FilterLinkCompleted',
-};
-
 export const Footer: React.FC<Props> = ({
   todos,
   removeAllTodos,
@@ -45,19 +27,25 @@ export const Footer: React.FC<Props> = ({
 
       {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        {Object.values(FilterType).map(value => (
-          <a
-            key={value}
-            href={hrefMap[value]}
-            className={classNames('filter__link', {
-              selected: filter === value,
-            })}
-            data-cy={dataCyMap[value]}
-            onClick={() => setFilter(value)}
-          >
-            {filterLabels[value]}
-          </a>
-        ))}
+        {Object.values(FilterType).map(value => {
+          const capitalized = value[0].toUpperCase() + value.slice(1);
+          const href = value === FilterType.all ? '#/' : `#/${value}`;
+          const dataCy = `FilterLink${capitalized}`;
+
+          return (
+            <a
+              key={value}
+              href={href}
+              className={classNames('filter__link', {
+                selected: filter === value,
+              })}
+              data-cy={dataCy}
+              onClick={() => setFilter(value)}
+            >
+              {capitalized}
+            </a>
+          );
+        })}
       </nav>
 
       {/* this button should be disabled if there are no completed todos */}
